@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<title>Portal für Kleinanzeigen</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/discordian-calendar.js"></script>
+<script src="js/default.js"></script>
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑
+				Einloggen</a>
+			<a href="register.html" class="show_if_not_logged_in">🔒
+				Registrieren</a>
+			<span id="infoline"></span>
+		</div>
+		<h1>Konto</h1>
+		<p>Dein Profil in der Übersicht.</p> 
+		<div id="cntnt">
+			Die Seite wird geladen, einen Moment bitte ...
+		</div>
+	</div>
+	<script id="profil" type="text/asjstOrWhatever">
+		{{if problems.indexOf('MISSING_AUTHENTICATION') > -1}}
+			⚠️ Du bist nicht angemeldet.
+		{{/if}}
+		{{if problems.length==0}}
+			<table>
+				<tr>
+					<th>Vorname</th>
+					<td>{{if typeof edit !== 'undefined'}}
+							<input id="firstname" value="{{firstname}}" placeholder="Vorname" required autocomplete="name" autocapitalize="on" />
+						{{else}}
+							<b><tt>{{firstname}}</tt></b>
+						{{/if}}
+					</td>
+				</tr>
+				<tr>
+					<th>Nachname</th>
+					<td>
+						{{if typeof edit !== 'undefined'}}
+							<input id="lastname" value="{{lastname}}" placeholder="Nachname" required autocomplete="family-name" autocapitalize="on" />
+						{{else}}
+							<b><tt>{{lastname}}</tt></b>
+						{{/if}}
+					</td>
+				</tr>
+				<tr>
+					<th>Geburtstag</th>
+					<td>
+						{{if typeof edit !== 'undefined'}}
+							<input id="bday" type="date" required="required" autocomplete="bday" value="{{new Date(birthday - new Date().getTimezoneOffset() * 60 * 1000).toISOString().substring(0,10)}}" />
+						{{else}}
+							<b><tt>{{new Date(birthday).toLocaleDateString()}}<br><small>({{discordianDate(new Date(birthday))}})</small></tt></b>
+						{{/if}}
+					</td>
+				</tr>
+				<tr>
+					<th>Anmeldedaten</th>
+					<td>
+						<table width="100%">
+							{{if logins.length > 0}}
+								<thead>
+									<tr>
+										<th>Benutzername</th>
+										<th>Zuletzt angemeldet</th>
+										{{if typeof edit !== 'undefined'}}
+											<th></th>
+										{{/if}}
+									</tr>
+								</thead>
+							{{/if}}
+							<tbody>
+								{{for Object.keys(logins)}}
+									<tr>
+										<td><b><tt>{{it}}</tt></b></td>
+										<td>Letzte mal benutzt am {{new Date(logins[it]).toLocaleDateString()}}</td>
+									</tr>
+								{{/for}}
+							<tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+			{{if typeof edit == 'undefined'}}
+				<a onclick="model.edit = true; repaint(model);">✏️ Bearbeiten</a>
+				<a onclick="confirm('Willst du wirklich gelöscht werden? \\n\\nDamit wirst du, deine Fahrten alle deine Nachrichten vollständig vergessen und es wird für mich nicht nachvollziehbar sein ob du je angemeldet warst!')">🗑️ Konto löschen!</a>
+			{{else}}
+				<a onclick="fetch('api/profile',post({firstname:dge('firstname').value, lastname:dge('lastname').value, birthday:new Date(dge('bday').value)})).then(json=>json.json()).then(json=>repaint(json));">💾 Speichern</a>
+				<a onclick="delete model.edit; repaint(model);">❌ Abbrechen</a>
+			{{/if}}
+		{{/if}}
+	</script>
+	<script>
+		var model={};
+		function repaint(model){
+			fetch('api/profile',json).then(txt=>txt.json()).then(json=>asjst.render('profil',Object.assign(model,json),html=>dge('cntnt').innerHTML=html));
+		}
+		repaint(model);
+	</script>
+	<script id="info" type="text/asjstOrWhatever">
+		{{if cookieAccepted == false}}
+			<div id="acceptCookie">
+				<div id="centered">
+					<p>Diese Internetseite verwendet ein Cookie. Der Cookie wird verwendet um sich zu merken dass du eingeloggt bist. </p>
+					<a onclick="fetch('api/acceptCookie',post({})).then(()=>document.location.reload())">Cookie Akzeptieren</a>
+				</div>
+			</div>
+		{{/if}}
+		{{if typeof firstname != 'undefined'}}
+			Hallo
+			{{if admin}}
+				Admin
+			{{/if}}
+			{{if typeof firstname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if lastname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if messages > 0}}
+				, du hast 
+				{{if messages > 1}}
+					{{messages}} Nachrichten.
+				{{else}}
+					eine Nachricht.
+				{{/if}}
+			{{/if}}
+			{{if admin}}
+				<a href="categories.html">✍ Kategorien</a>
+			{{/if}}
+			<input placeholder="Suchen ..." id="stext"><span onclick="search(dge('stext').value)"></span>
+			<a href="create_offer_stuff.html">💰 Verkaufen</a>
+			<a href="create_offer_ride.html">🚗 Fahren</a>
+		{{else}}
+			Nicht angemeldet!
+		{{/if}}
+	</script>
+</body>
+</html>

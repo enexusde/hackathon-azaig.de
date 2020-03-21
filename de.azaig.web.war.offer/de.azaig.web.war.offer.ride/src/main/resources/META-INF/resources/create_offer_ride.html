@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<title>Fahrt anbieten</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+<script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+<script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑 Einloggen</a>
+			<a href="register.html" class="show_if_not_logged_in">🔒 Registrieren</a>
+			<a href="index.html">🏠 Startseite</a>
+		</div>
+		<h1>Fahrt erstellen</h1>
+		<script id="ride" type="text/asjstOrWhatever">
+			{{if typeof createCar != 'undefined' && createCar}}
+		        <label>Was steht auf dem Nummernschild?
+		        <input placeholder="Kennzeichen" id="adds" />
+				</label>
+				<label>Welche Farbe hat das Auto
+		        	<input type="color" value="#434f85" id="addcc" />
+				</label>
+				<br>
+		        <a onclick="document.model.addSerial=dge('adds').value;document.model.addColor=dge('addcc').value;repaint(()=>{delete model.addSerial; delete model.addColor;});">Speichern</a>
+				<br>
+		        <a onclick="delete model.createCar;repaint()">Abbruch</a>
+            {{else}}
+                {{if problems.indexOf('NO_CARS') > -1}}
+		            Du hast kein Auto.
+		            <a onclick="document.model.createCar=true;repaint()">Auto eintragen</a>
+		        {{/if}}
+		        {{if problems.indexOf('SELECT_CAR') > -1}}
+		            <ul>
+		                {{for carSerials}}
+		                    <li><a onclick="document.model.carSerial='{{it}}';repaint()">{{it}}</a></li>
+		                {{/for}}
+		            </ul>
+		        {{/if}}
+		        {{if problems.indexOf('NO_SESSION') > -1}} 
+		            Melde dich zuerst an!
+		        {{/if}}
+		        {{if problems.indexOf('YOU_ARE_TOO_YOUNG') > -1}} 
+		            Du bist zu jung!
+		        {{/if}}
+		        {{if problems.indexOf('MISSING_START_POINT') > -1}} 
+					Wo gehts los?
+					<!-- {{document.showOsm()}} -->
+					<div id="map"></id>
+					{{for favouritePlaces}}
+						<a onclick="document.map.setCenter(new OpenLayers.LonLat({{longitude}},{{latitude}}).transform(document.map.options.displayProjection,document.map.options.projection), 19);"></a>
+					{{/for}}
+					<a onclick="navigator.geolocation.getCurrentPosition(
+						loc=>document.map.setCenter(new OpenLayers.LonLat(loc.coords.longitude,loc.coords.latitude).transform(document.map.options.displayProjection,document.map.options.projection), 19), ()=>{});
+					">Hierher</a>
+					<a onclick="var c = document.map.getCenter(); c.transform(new OpenLayers.Projection('EPSG:900913'),new OpenLayers.Projection('EPSG:4326')); document.model.add={longitude:c.lon,latitude:c.lat}">Merken</a>
+			{{/if}}
+		{{/if}}
+		</script>
+		
+		<div id="dyninfo">Einen Moment bitte ...</div>
+		<script type="text/javascript">
+			function loadOsm(longitude,latitude,zoom){
+				OpenLayers.Lang.setCode('de');
+				document.map = new OpenLayers.Map('map', {
+					projection: new OpenLayers.Projection("EPSG:900913"),
+					displayProjection: new OpenLayers.Projection("EPSG:4326"),
+					controls: [new OpenLayers.Control.Navigation()],
+					numZoomLevels: 19,
+					maxResolution: 156543,
+					units: 'meters'
+				});
+				document.map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
+				document.map.setCenter(new OpenLayers.LonLat(longitude,latitude).transform(document.map.options.displayProjection,document.map.options.projection), zoom);
+			}
+			document.showOsm=function(){
+				var yes = function(pos){
+					loadOsm(pos.coords.longitude, pos.coords.latitude, 18);
+				}
+				var no = function(){
+					loadOsm(13.404954, 52.520008,10);
+				}
+				navigator.geolocation.getCurrentPosition(yes, no);
+			}
+			
+			document.model={};
+			function repaint(cb){
+				fetch('api/newride',post(document.model)).then((a)=>a.json()).then((j)=>asjst.render('ride',Object.assign(j,document.model),function(html){dge('dyninfo').innerHTML=html;typeof cb!='undefined' && cb()}));
+			}
+			repaint();
+		</script>
+	</div>
+</body>
+</html>

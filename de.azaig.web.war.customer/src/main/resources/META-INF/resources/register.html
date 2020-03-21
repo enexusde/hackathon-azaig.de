@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="css/default.css">
+<title>Registrieren bei Azaig</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑 Einloggen</a>
+			<a href="index.html">🏠 Startseite</a>
+		</div>
+		<h1>Registrieren</h1>
+		<p>Um Angebote einzustellen oder um auf Angebote zu reagieren zu
+			können, musst du dich registrieren.</p>
+		<p>Bitte fülle dieses Formular aus und merke dir den Benutzernamen
+			und das Passwort.</p>
+		<script id="result" type="text/asjstOrWhatever">
+		{{for problems}}
+			<br>
+			⚠️
+			{{if it == 'AGB_MUST_CHECK'}}
+				Sie müssen den AGB zustimmen!
+			{{else if it == 'INVALID_BIRTHDAY'}}
+				Der Geburtstag ist ungültig.
+			{{else if it == 'PASSWORT_TOO_SHORT'}}
+				Das Passwort ist zu kurz.
+			{{else if it == 'PASSWORD_MISMATCH'}}
+				Die Passwörter stimmen nicht überein.
+			{{else if it == 'MISSING_FIRSTNAME'}}
+				Der Vorname fehlt.
+			{{else if it == 'MISSING_LASTNAME'}}
+				Der Nachname fehlt.
+			{{else if it == 'NICK_ALREADY_IN_USE'}}
+				Dieser Benutzername ist schon vergeben.
+			{{else if it == 'NICK_TOO_SHORT'}}
+				Dieser Benutzername ist zu kurz. Suche dir einen längeren Benutzernamen aus.
+			{{else}}
+				Allgemeiner Fehler: <tt>{{it}}</tt>
+			{{/if}}
+		{{/for}}
+		</script>
+		<div id="res"></div>
+		<table>
+			<tbody>
+				<tr>
+					<th colspan="2">Benutzername</th>
+					<td><input id="username" autocomplete="username"
+						required="required" /></td>
+				</tr>
+				<tr>
+					<th colspan="2">Passwort</th>
+					<td><input id="password" type="password" autocomplete="off"
+						required="required" /></td>
+				</tr>
+				<tr>
+					<th colspan="2"><nobr>Passwort (Wiederholen)</nobr></th>
+					<td><input id="password2" type="password" autocomplete="off"
+						required="required" /></td>
+				</tr>
+				<tr>
+					<th colspan="2">Vorname</th>
+					<td><input id="firstname" autocomplete="name"
+						required="required" /></td>
+				</tr>
+				<tr>
+					<th colspan="2">Nachname</th>
+					<td><input id="lastname" required="required"
+						autocomplete="family-name" autocapitalize="on" /></td>
+				</tr>
+				<tr>
+					<th colspan="2">Geburtstag</th>
+					<td><input id="birthday" type="date" required="required"
+						autocomplete="bday" /></td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" id="agbok" required="required"
+						autocomplete="off" /></td>
+					<td colspan="2">Ich habe die AGB gelesen und bin mit den AGB
+						einverstanden.</td>
+				</tr>
+				<tr>
+					<td colspan="3"><a href="agb.html" target="_blank">AGB
+							anzeigen.</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<a
+			onclick="fetch('api/register',post({
+			nick:dge('username').value, 
+			password:dge('password').value,
+			password2:dge('password2').value,
+			firstname:dge('firstname').value,
+			lastname:dge('lastname').value,
+			birthday:new Date(dge('birthday').value)*1,
+			agbok:dge('agbok').checked
+			})).then((a)=>a.json()).then((j)=>asjst.render('result',j,function(html){dge('res').innerHTML=html;}))">Registrieren</a>
+	</div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<title>Portal für Kleinanzeigen</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑 Einloggen</a>
+			<a href="register.html" class="show_if_not_logged_in">🔒 Registrieren</a>
+		</div>
+		<h1>Kategorien bearbeiten</h1>
+		<script id="cattree" type="text/asjstOrWhatever">
+			{{for problems}}
+				<br />⚠️{{it}}
+			{{/for}}
+			{{if problems.length == 0}}
+				<input id="addCat1" placeholder="Neue Hauptkategorie" ><a onclick="fetch('api/addcategoryL1',post({name:dge('addCat1').value})).then(repaint)">Hinzufügen</a>
+				<dl>
+					{{for categories}}
+						<dt>{{name}} <a onclick="fetch('api/delCategoryL1?id={{id}}',json).then(repaint)">X</a></dt>
+						<dd>
+							<dl>
+								{{for categories}}
+									<dt>{{name}}</dt>
+									<dd>
+										<dl>
+											{{for categories}}
+												<dt>{{name}}<a onclick="fetch('api/delCategoryL3?id={{id}}',json).then(repaint)">X</a></dt>
+												<dd>
+													
+												</dd>
+											{{/for}}
+										</dl>
+										<a onclick="fetch('api/delCategoryL2?id={{id}}',json).then(repaint)">X</a>
+										<input id="addCat3_{{id}}" placeholder="Neue Unter-Unterkategorie"><a onclick="fetch('api/addcategoryL3',post({name:dge('addCat3_{{id}}').value, parent:{{id}} })).then(repaint)">Hinzufügen</a>
+									</dd>
+								{{/for}}
+							</dl>
+							
+							<input id="addCat2_{{id}}" placeholder="Neue Unterkategorie"><a onclick="fetch('api/addcategoryL2',post({name:dge('addCat2_{{id}}').value, parent:{{id}} })).then(repaint)">Hinzufügen</a>
+						</dd>
+					{{/for}}
+				</dl>
+			{{/if}}
+		</script>
+		<div id="dyninfo">Einen Moment bitte ...</div>
+		<script type="text/javascript">
+			function repaint(){
+				fetch('api/allcategories',json).then((a)=>a.json()).then((j)=>asjst.render('cattree',j,function(html){dge('dyninfo').innerHTML=html;}));
+			}
+			repaint();
+		</script>
+	</div>
+</body>
+</html>

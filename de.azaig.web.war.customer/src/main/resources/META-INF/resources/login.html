@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<title>Anmelden bei Azaig</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+</head>
+<body>
+
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="register.html" class="show_if_not_logged_in">🔒 Registrieren</a>
+			<a href="index.html">🏠 Startseite</a>
+		</div>
+
+		<script>
+			if (document.location.protocol === 'https:') {
+				document.location.protocol = 'http:';
+			}
+			var array = new Uint32Array(1);
+			window.crypto.getRandomValues(array);
+		</script>
+		<h1>Anmelden</h1>
+		<p>Um Angebote einzustellen oder um auf Angebote zu reagieren
+			musst du dich anmelden.</p>
+		<label
+			title="Dein Benutzername (auch nick) genannt. Der Benutzername ersetzt deinen offiziellen Namen aus Datenschutzgründen.">
+			Benutzername: <input id="username" autofocus="autofocus"
+			required="required" autocomplete="username"
+			placeholder="Dein Benutzername">
+		</label> <br> <label>Passwort: <input id="password"
+			type="password" required="required" autocomplete="on"
+			placeholder="Dein Passwort" /></label>
+
+		<div class="capcha">
+			<label>Captcha:<br>
+				<p>
+					Bitte schreibe folgenden <br> Code in das unten <br>
+					angegebene Textfeld:<br>
+					<script>
+						document.write('<img width=200 src="api/capcha.png?javascriptValue='+array[0]+'" />')
+					</script>
+					<br>
+					<input type="text" autocomplete="off"
+						placeholder="&#11177; Textfeld" required="required" id="capcha" /></label>
+		</div>
+		<script id="result" type="text/asjstOrWhatever">
+		{{for problems}}
+			<br>⚠️
+			{{if it == 'ILLEGAL_CAPCHA_LOGIN_UNCHECKED'}}
+				Der Capcha-Code wurde nicht richtig abgeschrieben.
+			{{else if it == 'USERNAME_TOO_SHORT'}}
+				Der Benutzername ist zu kurz.
+			{{else if it == 'PASSWORD_TOO_SHORT'}}
+				Das Passwort ist zu kurz.
+			{{else if it == 'AUTH_OK_ACCOUNT_LOCKED'}}
+				Dieses Konto ist gesperrt.
+			{{else if it == 'WRONG_PASSWD'}}
+				Das Passwort ist falsch.
+			{{else if it == 'NO_SUCH_USER'}}
+				Benutzer konnte nicht gefunden werden.
+			{{else if it == 'TECHNICAL_PROBLEMS'}}
+				Es gibt technische Probleme. Bitte versuchen Sie es später erneut.
+			{{else}}
+				Allgemeiner Fehler: <tt>Code: {{it}}</tt>
+			{{/if}}
+		{{/for}}
+	</script>
+		<div id="res"></div>
+		<a
+			onclick="
+				asjst.render('result',{problems:[]},function(html){
+					fetch('api/login',post({
+					username:dge('username').value, 
+					password:dge('password').value,
+					capcha:dge('capcha').value,
+					sec:array[0]
+					}))
+					.then((a)=>a.json())
+					.then((j)=>{
+						if(j.problems.length==0) {
+							document.location.href='index.html';
+						} else {
+							asjst.render('result',j,function(html){
+								dge('res').innerHTML=html;
+							})
+						}
+					})
+				})
+			">Anmelden</a>
+	</div>
+</body>
+</html>

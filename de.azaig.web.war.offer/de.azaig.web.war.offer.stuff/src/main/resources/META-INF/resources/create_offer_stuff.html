@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<link rel="stylesheet" href="css/drop.css">
+<title>Portal für Kleinanzeigen</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑 Einloggen</a>
+			<a href="register.html" class="show_if_not_logged_in">🔒 Registrieren</a>
+			<span id="infoline"></span>
+		</div>
+		<h1>Angebot erstellen</h1>
+		<script id="cattree" type="text/asjstOrWhatever">
+			{{for problems}}
+				<br>⚠️
+				{{if it == 'PLEASE_CHOOSE_CATEGORY1'}}
+					Wähle eine Kategorie
+				{{/if}}
+				{{if it == 'PLEASE_CHECK_AND_CONFIRM'}}
+					Bitte prüfen ob alles stimmt.
+					<a onclick="model.confirmed=true;repaint();">Jetzt veröffentlichen</a>
+					<a onclick="model.confirmed=false;repaint();">Verwerfen</a>
+				{{/if}}
+				{{if it == 'PUBLISHED'}}
+					Erfolgreich! Anzeige ist jetzt veröffentlicht!
+				{{/if}}
+				{{if it == 'DROPED'}}
+					Abgebrochen! Die Anzeige wurde vergessen.
+				{{/if}}
+				{{if it == 'PLEASE_CHOOSE_CATEGORY2'}}
+					Wähle eine Unter-Kategorie
+				{{/if}}
+				{{if it == 'PLEASE_CHOOSE_CATEGORY3'}}
+					Wähle nun die genaue Kategorie
+				{{/if}}
+				{{if it == 'ADD_PICTURES'}}
+					Füge Bilder hinzu.
+					<a onclick="model.hasPictures=false;repaint()">Ohne Bilder</a>
+				{{/if}}
+				{{if it == 'ADD_TEXT'}}
+					Füge eine Beschreibung hinzu
+				{{/if}}
+				{{if it == 'TEXT_TOO_SMALL'}}
+					Die Beschreibung ist zu kurz
+				{{/if}}
+				{{if it == 'TEXT_TOO_LONG'}}
+					Die Beschreibung ist zu lang
+				{{/if}}
+				{{if it == 'SET_BUSINESS_OR_NOT'}}
+					Ist es gewerblich oder privat?
+					<label><input type="radio" name="business" onclick="model.business=true;" /> Gewerblich</label>
+					<label><input type="radio" name="business" onclick="model.business=false;" /> Privat</label>
+					<a onclick="repaint()">Weiter</a>
+				{{/if}}
+				{{if it == 'PLEASE_LOGIN'}}
+					Bitte anmelden
+				{{/if}}
+				{{if it == 'PLEASE_ACCEPT_COOKIES'}}
+					Bitte den Cookie akzeptieren
+				{{/if}}
+				{{if typeof images !== 'undefined'}}
+						{{if images.length > 0}}
+							{{for images}}
+								<img src="api/offerimage/{{it}}.jpg" 
+								{{if images.length % 3 == 0}}
+									width="{{ (600 / 3) - 5}}"
+								{{else if images.length % 4 == 0}}
+									width="{{ (600 / 4) - 5}}"
+								{{else if images.length % 2 == 0}}
+									width="{{ (600 / 2) - 5}}"
+								{{else}}
+									width="{{ (600 / 5) - 5}}"
+								{{/if}}
+								/>
+							{{/for}}
+						{{/if}}
+					{{/if}}
+			{{/for}}
+			{{if problems.indexOf('PLEASE_CHOOSE_CATEGORY1') > -1}}
+				{{if Object.keys(categories).length > 0 }}
+					<ul>
+						{{for Object.keys(categories)}}
+							<li><a onclick="model.cat1={{it}};repaint();">{{categories[it]}}</a></li>
+						{{/for}}
+					</ul>
+				{{/if}}
+			{{/if}}
+			{{if problems.indexOf('PLEASE_CHOOSE_CATEGORY2') > -1}}
+				{{if Object.keys(categories).length > 0 }}
+					<ul>
+						{{for Object.keys(categories)}}
+							<li><a onclick="model.cat2={{it}};repaint();">{{categories[it]}}</a></li>
+						{{/for}}
+					</ul>
+				{{/if}}
+			{{/if}}
+			{{if problems.indexOf('PLEASE_CHOOSE_CATEGORY3') > -1}}
+				{{if Object.keys(categories).length > 0 }}
+					<ul>
+						{{for Object.keys(categories)}}
+							<li><a onclick="model.cat3={{it}};repaint();">{{categories[it]}}</a></li>
+						{{/for}}
+					</ul>
+				{{/if}}
+			{{/if}}
+			{{if problems.indexOf('ADD_PICTURES') > -1}}
+				<label>
+				<div id="fileDrop" ondrop="handleDrop(event)">
+					Hierher ziehen oder klicken.
+				</div>
+				<input type="file" multiple style="display:none" accept="image/*" onchange="handleDrop(event)" />
+				</label>
+			{{/if}}
+			{{if problems.indexOf('ADD_TEXT') > -1}}
+				<br>
+				<textarea placeholder="Beschreibung" id="desc"></textarea>
+				<a onclick="model.text=dge('desc').value; repaint();">Fertig</a>
+			{{/if}}
+			{{if problems.indexOf('TEXT_TOO_SMALL') > -1}}
+				<br>
+				<textarea placeholder="Beschreibung" id="desc">{{model.text}}</textarea>
+				<a onclick="model.text=dge('desc').value; repaint();">Fertig</a>
+			{{/if}}
+		</script>
+		<div id="dyninfo">Einen Moment bitte ...</div>
+		<img src="nothing" id="cimg" style="display:none;"/>
+		<canvas id="frc" width="600" height="600" style="display:none"></canvas>
+		<script type="text/javascript">
+			var model = {pictures:[]};
+			function repaint(){
+				fetch('api/createOfferStuff',post(model)).then((a)=>a.json()).then((j)=>asjst.render('cattree',j,function(html){dge('dyninfo').innerHTML=html;}));
+			}
+			function handleDrop(event){
+				var files = event.target.files;
+				for(var i =0; i < files.length; i++) {
+					var fr = new FileReader();
+					fr.addEventListener('load', function(){
+						var img = new Image();
+						img.onload=function(){
+							var ctx = dge('frc').getContext('2d');
+							ctx.imageSmoothingEnabled = true;
+							ctx.fillStyle = 'white';
+							ctx.fillRect(0,0,img.width,img.height);
+							var factor = img.width / img.height;
+							var largness = 1000;
+							var targetWidth;
+							var targetHeight;
+							do{
+								targetWidth = largness * factor;
+								targetHeight = largness;
+								largness--;
+							} while(targetWidth > 600 || targetHeight > 600);
+							ctx.drawImage(img,0,0,img.width,img.height,0,0,targetWidth, targetHeight);
+							fetch('api/addStuffImage',post({jpegDataUrl:dge('frc').toDataURL("image/jpeg")})).then((r)=>r.json()).then(function(j){
+								model.pictures.push(j*1);
+								repaint();
+							});
+						}
+						img.src = fr.result;
+					});
+					fr.readAsDataURL(files[i]);
+				}
+			}
+			repaint();
+		</script>
+			<script id="info" type="text/asjstOrWhatever">
+		{{if cookieAccepted == false}}
+			<div id="acceptCookie">
+				<div id="centered">
+					Diese Internetseite verwendet ein Cookie. Der Cookie wird verwendet um sich zu merken dass du eingeloggt bist. <a onclick="fetch('api/acceptCookie',post({})).then(()=>document.location.reload())">Cookie Akzeptieren</a>
+				</div>
+			</div>
+		{{/if}}
+		{{if typeof firstname != 'undefined'}}
+			Hallo
+			{{if admin}}
+				Admin
+			{{/if}}
+			{{if typeof firstname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if lastname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if messages > 0}}
+				, du hast 
+				{{if messages > 1}}
+					{{messages}} Nachrichten.
+				{{else}}
+					eine Nachricht.
+				{{/if}}
+			{{/if}}
+			<input placeholder="Suchen ..." id="stext"><span onclick="search(dge('stext').value)"></span>
+			{{if admin}}
+				<a href="categories.html">✍ Kategorien bearbeiten</a>
+			{{/if}}
+			<a href="create_offer_stuff.html">💰 Verkaufen</a>
+			<a href="create_offer_ride.html">🚗 Fahren</a>
+		{{/if}}
+	</script>
+	</div>
+</body>
+</html>

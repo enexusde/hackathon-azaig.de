@@ -1,0 +1,5 @@
+package de.azaig.web.war.offer.ride.model.out;
+
+public enum RideProblem {
+	NO_CARS, NO_SESSION, SECURITY_CHECK_FAILED, NO_SUCH_USER, YOU_ARE_TOO_YOUNG, MISSING_START_POINT, SELECT_CAR, NOT_YOUR_CAR, CAR_ALREADY_REGISTERED
+}

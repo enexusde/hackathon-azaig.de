@@ -1,0 +1,6 @@
+package de.azaig.web.war.customer.model;
+
+public enum LoginProblems {
+	ILLEGAL_CAPCHA_LOGIN_UNCHECKED, USERNAME_TOO_SHORT, PASSWORD_TOO_SHORT, // done
+	AUTH_OK_ACCOUNT_LOCKED, WRONG_PASSWD, NO_SUCH_USER, TECHNICAL_PROBLEMS
+}

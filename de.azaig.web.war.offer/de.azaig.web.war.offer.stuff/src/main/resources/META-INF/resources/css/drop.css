@@ -1,0 +1,23 @@
+div#fileDrop {
+	display: block;
+	width: 146px;
+	background: rgba(3, 3, 3, 0.2);
+	padding: 18px;
+	margin: 10px;
+	border-radius: 3px;
+	font-size: 25pt;
+	text-align: center;
+	font-weight: bold;
+	border: 2px outset white;
+	outline: 3px solid lightgray;
+	color: white;
+	position: relative;
+}
+
+div#fileDrop:before {
+	content: '☁️';
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	font-size: 92pt;
+}

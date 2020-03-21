@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control"
+	content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link rel="stylesheet" href="css/default.css">
+<title>Portal für Kleinanzeigen</title>
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/asjst.js"></script>
+<script src="js/default.js"></script>
+</head>
+<body>
+	<script>
+		if (document.location.protocol === 'https:') {
+			document.location.protocol = 'http:';
+		}
+	</script>
+	<div class="body">
+		<div class="navi">
+			<a href="http://www.azaig.de." class="logo"></a>
+			<a href="login.html" id="loginbtn" class="show_if_not_logged_in">🔑
+				Einloggen</a>
+			<a href="register.html" class="show_if_not_logged_in">🔒
+				Registrieren</a>
+			<a href="meinProfil.html" class="show_if_logged_in">⚙️ Konto</a>
+			<span id="infoline"></span>
+		</div>
+		<h1>Willkommen zu Azaig</h1>
+		<p>Deinem nicht-gewerblichen kostenlosen Kleinanzeigenmarkt. Hier
+			kannst du Kaufen, Verkaufen, Mitfahrer finden und Mitfahrer suchen.
+		<div id="cntnt"></div>
+		<p>Für die Verwendung dieser Internetseite ist es unerlässlich
+			einen Cookie einzusetzen. Bist du damit nicht einverstanden kannst du
+			die Webseite nicht benutzen.
+	</div>
+	<script id="dashboard" type="text/asjstOrWhatever">
+		<table>
+			<caption>Neuste beiträge</caption>
+		</table>
+	</script>
+	<script>
+		fetch('api/update',json).then(a=>a.json()).then(a=>asjst.render('dashboard',a,html=>dge('cntnt').innerHTML=html));
+	</script>
+	<script id="info" type="text/asjstOrWhatever">
+		{{if cookieAccepted == false}}
+			<div id="acceptCookie">
+				<div id="centered">
+					<p>Diese Internetseite verwendet ein Cookie. Der Cookie wird verwendet um sich zu merken dass du eingeloggt bist. </p>
+					<a onclick="fetch('api/acceptCookie',post({})).then(()=>document.location.reload())">Cookie Akzeptieren</a>
+				</div>
+			</div>
+		{{/if}}
+		{{if typeof firstname != 'undefined'}}
+			Hallo
+			{{if admin}}
+				Admin
+			{{/if}}
+			{{if typeof firstname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if lastname != 'undefined'}}
+				{{firstname}}
+			{{/if}}
+			{{if messages > 0}}
+				, du hast 
+				{{if messages > 1}}
+					{{messages}} Nachrichten.
+				{{else}}
+					eine Nachricht.
+				{{/if}}
+			{{/if}}
+			{{if admin}}
+				<a href="categories.html">✍ Kategorien</a>
+			{{/if}}
+			<input placeholder="Suchen ..." id="stext"><span onclick="search(dge('stext').value)"></span>
+			<a href="create_offer_stuff.html">💰 Verkaufen</a>
+			<a href="create_offer_ride.html">🚗 Fahren</a>
+		{{else}}
+			Nicht angemeldet!
+		{{/if}}
+	</script>
+</body>
+</html>
